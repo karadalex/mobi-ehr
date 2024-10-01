@@ -1,70 +1,175 @@
-import { Image, StyleSheet, Platform } from 'react-native';
+// DashboardScreen.js
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+import React from 'react';
+import { View, ScrollView, StyleSheet, Dimensions, Linking } from 'react-native';
+import { Card, Title, Paragraph, Button } from 'react-native-paper';
+import { LineChart } from 'react-native-chart-kit';
 
-export default function HomeScreen() {
+const DashboardScreen = () => {
+  // Mock data for demonstration
+  const healthInfo = {
+    name: 'Jane Doe',
+    age: 29,
+    bloodType: 'A+',
+    allergies: 'None',
+  };
+
+  const medications = [
+    { name: 'Atorvastatin', dose: '20mg', frequency: 'Once daily' },
+    { name: 'Metformin', dose: '500mg', frequency: 'Twice daily' },
+  ];
+
+  const vitalSigns = {
+    heartRate: [72, 75, 78, 76, 74, 73, 72],
+    bloodPressureSystolic: [120, 118, 122, 119, 121, 117, 120],
+    bloodPressureDiastolic: [80, 78, 82, 79, 81, 77, 80],
+  };
+
+  const healthResources = [
+    { title: 'Healthy Eating', url: 'https://www.choosemyplate.gov/' },
+    { title: 'Exercise Guidelines', url: 'https://www.who.int/news-room/fact-sheets/detail/physical-activity' },
+  ];
+
+  const chartConfig = {
+    backgroundGradientFrom: '#ffffff',
+    backgroundGradientTo: '#ffffff',
+    decimalPlaces: 0,
+    color: (opacity = 1) => `rgba(34, 139, 230, ${opacity})`,
+    labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+    style: {
+      borderRadius: 16,
+    },
+    propsForDots: {
+      r: '3',
+      strokeWidth: '1',
+      stroke: '#1E90FF',
+    },
+  };
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({ ios: 'cmd + d', android: 'cmd + m' })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{' '}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+    <ScrollView style={styles.container}>
+      {/* Basic Health Information */}
+      <Card style={styles.card}>
+        <Card.Title title="Basic Health Information" />
+        <Card.Content>
+          <Paragraph>Name: {healthInfo.name}</Paragraph>
+          <Paragraph>Age: {healthInfo.age}</Paragraph>
+          <Paragraph>Blood Type: {healthInfo.bloodType}</Paragraph>
+          <Paragraph>Allergies: {healthInfo.allergies}</Paragraph>
+        </Card.Content>
+      </Card>
+
+      {/* Medications Card */}
+      <Card style={styles.card}>
+        <Card.Title title="Medications" />
+        <Card.Content>
+          {medications.map((medication, index) => (
+            <View key={index} style={styles.medicationItem}>
+              <Title style={styles.medicationName}>{medication.name}</Title>
+              <Paragraph>
+                Dose: {medication.dose} - {medication.frequency}
+              </Paragraph>
+            </View>
+          ))}
+        </Card.Content>
+      </Card>
+
+      {/* Vital Signs Graphs */}
+      <Card style={styles.card}>
+        <Card.Title title="Vital Signs" />
+        <Card.Content>
+          <Title style={styles.chartTitle}>Heart Rate (bpm)</Title>
+          <LineChart
+            data={{
+              labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+              datasets: [
+                {
+                  data: vitalSigns.heartRate,
+                },
+              ],
+            }}
+            width={Dimensions.get('window').width - 40}
+            height={220}
+            yAxisSuffix=" bpm"
+            chartConfig={chartConfig}
+            bezier
+            style={styles.chart}
+          />
+
+          <Title style={styles.chartTitle}>Blood Pressure (mmHg)</Title>
+          <LineChart
+            data={{
+              labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+              datasets: [
+                {
+                  data: vitalSigns.bloodPressureSystolic,
+                  color: (opacity = 1) => `rgba(255, 0, 0, ${opacity})`, // Red
+                  strokeWidth: 2,
+                },
+                {
+                  data: vitalSigns.bloodPressureDiastolic,
+                  color: (opacity = 1) => `rgba(0, 0, 255, ${opacity})`, // Blue
+                  strokeWidth: 2,
+                },
+              ],
+              legend: ['Systolic', 'Diastolic'],
+            }}
+            width={Dimensions.get('window').width - 40}
+            height={220}
+            yAxisSuffix=" mmHg"
+            chartConfig={chartConfig}
+            bezier
+            style={styles.chart}
+          />
+        </Card.Content>
+      </Card>
+
+      {/* Links to Health Resources */}
+      <Card style={styles.card}>
+        <Card.Title title="Health Resources" />
+        <Card.Content>
+          {healthResources.map((resource, index) => (
+            <Button
+              key={index}
+              mode="contained"
+              onPress={() => Linking.openURL(resource.url)}
+              style={styles.resourceButton}
+            >
+              {resource.title}
+            </Button>
+          ))}
+        </Card.Content>
+      </Card>
+    </ScrollView>
   );
-}
+};
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+  container: {
+    flex: 1,
+    padding: 10,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  card: {
+    marginBottom: 15,
+    borderRadius: 8,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  medicationItem: {
+    marginBottom: 10,
+  },
+  medicationName: {
+    fontSize: 16,
+  },
+  chart: {
+    marginVertical: 8,
+    borderRadius: 16,
+  },
+  chartTitle: {
+    marginVertical: 8,
+    fontSize: 16,
+  },
+  resourceButton: {
+    marginBottom: 10,
   },
 });
+
+export default DashboardScreen;
